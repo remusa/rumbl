@@ -8,7 +8,7 @@ defmodule RumblWeb.Auth do
 
   def call(conn, repo) do
     user_id = get_session(conn, :user_id)
-    user = user_id && repo.get(Rumbl.User, user_id)
+    user = user_id && repo.get(Rumbl.Accounts.User, user_id)
 
     assign(conn, :current_user, user)
   end
@@ -22,7 +22,7 @@ defmodule RumblWeb.Auth do
 
   def login_by_username_and_pass(conn, username, given_pass, opts) do
     repo = Keyword.fetch!(opts, :repo)
-    user = Repo.get_by(Rumbl.User, username: username)
+    user = Repo.get_by(Rumbl.Accounts.User, username: username)
 
     cond do
       user && Pbkdf2.verify_pass(given_pass, user.password_hash) ->
@@ -39,5 +39,19 @@ defmodule RumblWeb.Auth do
 
   def logout(conn) do
     configure_session(conn, drop: true)
+  end
+
+  import Phoenix.Controller
+  alias RumblWeb.Router.Helpers, as: Routes
+
+  def authenticate_user(conn, _opts) do
+    if conn.assigns.current_user do
+      conn
+    else
+      conn
+      |> put_flash(:error, "You must be logged in to access that page")
+      |> redirect(to: Routes.page_path(conn, :index))
+      |> halt()
+    end
   end
 end

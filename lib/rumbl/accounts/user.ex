@@ -1,13 +1,14 @@
-defmodule Rumbl.User do
+defmodule Rumbl.Accounts.User do
   use RumblWeb, :model
 
-  @fields [:name, :username]
+  @required_fields [:name, :username]
 
   schema "users" do
     field :name, :string
     field :username, :string
     field :password, :string, virtual: true
     field :password_hash, :string
+    has_many :videos, Rumbl.Multimedia.Video
 
     timestamps()
   end
@@ -33,8 +34,8 @@ defmodule Rumbl.User do
 
   def changeset(user, attrs) do
     user
-    |> cast(attrs, @fields)
-    |> validate_required(@fields)
+    |> cast(attrs, @required_fields)
+    |> validate_required(@required_fields)
     |> validate_length(:username, min: 1, max: 20)
   end
 end
