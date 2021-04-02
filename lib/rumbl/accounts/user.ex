@@ -8,6 +8,7 @@ defmodule Rumbl.Accounts.User do
     field :username, :string
     field :password, :string, virtual: true
     field :password_hash, :string
+
     has_many :videos, Rumbl.Multimedia.Video
 
     timestamps()
@@ -37,5 +38,6 @@ defmodule Rumbl.Accounts.User do
     |> cast(attrs, @required_fields)
     |> validate_required(@required_fields)
     |> validate_length(:username, min: 1, max: 20)
+    |> unique_constraint(:username)
   end
 end
